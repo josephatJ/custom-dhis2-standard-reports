@@ -1,25 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { OrgUnitFilterConfig } from '@iapps/ngx-dhis2-org-unit-filter';
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' }
-];
+import { Store } from '@ngrx/store';
+import { State } from 'src/app/store/reducers';
+import { loadStdReportConfigsById } from '../../store/actions';
+import { Observable, Subject } from 'rxjs';
+import { getStandardReportConfigsById } from '../../store/selectors';
 
 @Component({
   selector: 'app-home',
@@ -27,22 +13,67 @@ const ELEMENT_DATA: PeriodicElement[] = [
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = ELEMENT_DATA;
+  orgUnitFilterConfig: any = {
+    singleSelection: true,
+    showUserOrgUnitSection: false,
+    showOrgUnitLevelGroupSection: false,
+    showOrgUnitGroupSection: false,
+    showOrgUnitLevelSection: false,
+    reportUse: false,
+    additionalQueryFields: [],
+    batchSize: 400
+  };
+  selectionFilterConfig: any = {
+    showDataFilter: false,
+    showPeriodFilter: true,
+    showOrgUnitFilter: true,
+    showLayout: false,
+    showFilterButton: false,
+    orgUnitFilterConfig: {
+      singleSelection: true,
+      showUserOrgUnitSection: false,
+      showOrgUnitLevelGroupSection: false,
+      showOrgUnitGroupSection: false,
+      showOrgUnitLevelSection: false,
+      reportUse: false,
+      additionalQueryFields: [],
+      batchSize: 400
+    }
+  };
+  selectedOrgUnitItems: Array<any> = [];
   pageEvent: any;
-  orgUnitFilterConfig: OrgUnitFilterConfig;
-  constructor(private _snackBar: MatSnackBar) {}
+  // orgUnitFilterConfig: OrgUnitFilterConfig;
+  reportConfigs$: Observable<any>;
+  filterSelections: Array<any> = [];
+  selectionChanged$: Subject<any> = new Subject();
+  selectionChanged: boolean = false;
+  constructor(private store: Store<State>) {
+    this.store.dispatch(loadStdReportConfigsById({ reportId: 'anc' }));
+  }
 
   ngOnInit() {
+    this.selectionChanged = true;
+    this.selectionChanged$.next({
+      changed: false
+    });
+    this.reportConfigs$ = this.store.select(getStandardReportConfigsById, {
+      id: 'anc'
+    });
     this.orgUnitFilterConfig = {
       reportUse: false,
       singleSelection: false
     };
   }
 
-  openSnackBar() {
-    this._snackBar.open('This is working', 'OK', {
-      duration: 2000
-    });
+  onFilterUpdate(selections) {
+    this.selectionChanged = false;
+    setTimeout(() => {
+      this.selectionChanged = true;
+      this.selectionChanged$.next({
+        changed: true
+      });
+    }, 1000);
+    this.filterSelections = selections;
+    console.log('selections', selections);
   }
 }
