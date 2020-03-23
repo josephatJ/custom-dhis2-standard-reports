@@ -5,7 +5,9 @@ export const routes: Routes = [
   {
     path: '',
     loadChildren: () =>
-      import('./pages/home/home.module').then(m => m.HomeModule)
+      import(
+        './pages/custom-standard-reports/custom-standard-reports.module'
+      ).then(m => m.CustomStandardReportsModule)
   }
 ];
 

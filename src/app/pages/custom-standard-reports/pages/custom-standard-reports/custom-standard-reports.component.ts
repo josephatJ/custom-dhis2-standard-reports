@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { OrgUnitFilterConfig } from '@iapps/ngx-dhis2-org-unit-filter';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/store/reducers';
 import { loadStdReportConfigsById } from '../../store/actions';
@@ -8,11 +6,11 @@ import { Observable, Subject } from 'rxjs';
 import { getStandardReportConfigsById } from '../../store/selectors';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  selector: 'app-custom-standard-reports',
+  templateUrl: './custom-standard-reports.component.html',
+  styleUrls: ['./custom-standard-reports.component.css']
 })
-export class HomeComponent implements OnInit {
+export class CustomStandardReportsComponent implements OnInit {
   orgUnitFilterConfig: any = {
     singleSelection: true,
     showUserOrgUnitSection: false,
